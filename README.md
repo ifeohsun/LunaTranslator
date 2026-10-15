@@ -29,7 +29,7 @@ It uses a sleek Material Design 3 interface, lives quietly in your system tray, 
 
 ## ⬇️ Download
 
-Download the latest release from [GitHub Releases](https://github.com/ifeohsun/Translator/releases/latest). On Windows, use `LunaTranslator-Installer.exe` for a standard installation or the portable ZIP to run without installing. Linux packages are provided in AppImage, `.deb`, `.rpm`, and Flatpak formats where available.
+Download the latest release from [GitHub Releases](https://github.com/ifeohsun/LunaTranslator/releases/latest). On Windows, use `LunaTranslator-Installer.exe` for a standard installation or the portable ZIP to run without installing. Linux packages are provided in AppImage, `.deb`, `.rpm`, and Flatpak formats where available.
 
 ## ✨ Why use it?
 
