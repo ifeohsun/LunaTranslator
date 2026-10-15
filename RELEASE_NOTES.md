@@ -1,8 +1,6 @@
-# LunaTranslator v0.3.0
+# LunaTranslator v0.3.1
 
-- Improved reliability when reopening selection translation quickly.
-- The selection popup now opens with empty content when no text is selected.
-- Prevented stale clipboard captures and translation results from replacing newer requests.
-- Closing the popup cancels pending selection updates.
+- Updated the application logo and platform icons.
+- Bundled the Outfit font locally so builds no longer require access to Google Fonts.
 
 Based on MoonTranslator by Noxy Galaxy; maintained by SornSyun.
