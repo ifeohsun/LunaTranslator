@@ -1,0 +1,294 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release Version (e.g. v1.0.0)"
+        required: true
+        type: string
+        default: "v1.0.0"
+      release_title:
+        description: "Release Title"
+        required: true
+        type: string
+        default: "New Release"
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libx11-dev \
+            libxrandr-dev \
+            libwayland-dev \
+            rpm
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: Sync version to release tag
+        run: node scripts/set-version.mjs "${{ github.event.inputs.version }}"
+
+      - name: Build Tauri App
+        run: pnpm tauri build --bundles deb rpm appimage
+
+      - name: Stage Linux Artifacts
+        run: |
+          mkdir -p linux-artifacts
+          cd src-tauri/target/release/bundle/appimage
+          APPIMAGE_FILE=$(ls *.AppImage 2>/dev/null | head -n 1)
+          if [ -n "$APPIMAGE_FILE" ]; then
+            mv "$APPIMAGE_FILE" "$GITHUB_WORKSPACE/linux-artifacts/LunaTranslator-App-${{ github.event.inputs.version }}.AppImage"
+            chmod +x "$GITHUB_WORKSPACE/linux-artifacts/LunaTranslator-App-${{ github.event.inputs.version }}.AppImage"
+          else
+            echo "Error: No AppImage file found"
+            exit 1
+          fi
+          cd "$GITHUB_WORKSPACE/src-tauri/target/release/bundle/deb"
+          DEB_FILE=$(ls *.deb 2>/dev/null | head -n 1)
+          if [ -n "$DEB_FILE" ]; then
+            mv "$DEB_FILE" "$GITHUB_WORKSPACE/linux-artifacts/LunaTranslator-App-${{ github.event.inputs.version }}.deb"
+          else
+            echo "Error: No deb file found"
+            exit 1
+          fi
+          cd "$GITHUB_WORKSPACE/src-tauri/target/release/bundle/rpm"
+          RPM_FILE=$(ls *.rpm 2>/dev/null | head -n 1)
+          if [ -n "$RPM_FILE" ]; then
+            mv "$RPM_FILE" "$GITHUB_WORKSPACE/linux-artifacts/LunaTranslator-App-${{ github.event.inputs.version }}.rpm"
+          else
+            echo "Error: No rpm file found"
+            exit 1
+          fi
+
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LunaTranslator-Linux
+          path: linux-artifacts
+          retention-days: 14
+
+  build-flatpak:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Sync version to release tag
+        run: node scripts/set-version.mjs "${{ github.event.inputs.version }}"
+
+      - name: Install flatpak tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder ccache
+
+      - name: Cache Flatpak build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/share/flatpak
+            ~/.cache/flatpak-builder
+            ~/.cache/ccache
+          key: flatpak-${{ runner.os }}-48-${{ hashFiles('dev.noxygalaxy.moontranslator.yml', 'flatpak/**') }}
+          restore-keys: |
+            flatpak-${{ runner.os }}-48-
+
+      - name: Add flathub remote
+        run: flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+      - name: Install runtime and SDK
+        run: |
+          flatpak install --user --noninteractive flathub \
+            org.gnome.Platform//48 \
+            org.gnome.Sdk//48
+
+      - name: Build Flatpak
+        run: |
+          flatpak-builder --user --ccache --install-deps-from=flathub --force-clean \
+            --repo=flatpak-repo \
+            build-flatpak \
+            dev.noxygalaxy.moontranslator.yml
+
+      - name: Bundle Flatpak
+        run: |
+          flatpak build-bundle \
+            --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo \
+            flatpak-repo \
+            LunaTranslator-App-${{ github.event.inputs.version }}.flatpak \
+            dev.noxygalaxy.moontranslator
+
+      - name: Upload Flatpak Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LunaTranslator-Flatpak
+          path: LunaTranslator-App-${{ github.event.inputs.version }}.flatpak
+          retention-days: 30
+
+  build-and-release:
+    runs-on: windows-latest
+    needs:
+      - build-linux
+      - build-flatpak
+    permissions:
+      contents: write
+    env:
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            src-tauri -> target
+            installer -> target
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: Sync version to release tag
+        run: node scripts/set-version.mjs "${{ github.event.inputs.version }}"
+
+      - name: Build Tauri App
+        run: pnpm tauri build
+
+      - name: Package Portable App
+        shell: pwsh
+        run: |
+          mkdir LunaTranslator_Portable
+          Copy-Item "src-tauri\target\release\moon*.exe" "LunaTranslator_Portable\"
+          Copy-Item "src-tauri\icons\icon.ico" "LunaTranslator_Portable\"
+          Compress-Archive -Path "LunaTranslator_Portable\*" -DestinationPath "LunaTranslator-App-${{ github.event.inputs.version }}-portable.zip"
+
+      - name: Cache Custom Installer Binary
+        id: cache-installer
+        uses: actions/cache@v4
+        with:
+          path: installer/target/release/moontranslator_installer.exe
+          key: ${{ runner.os }}-installer-bin-${{ hashFiles('installer/src/**', 'installer/Cargo.*', 'installer/build.rs', 'installer/icon.ico') }}
+
+      - name: Build Custom Installer
+        if: steps.cache-installer.outputs.cache-hit != 'true'
+        run: |
+          cd installer
+          cargo build --release
+
+      - name: Package Custom Installer
+        shell: pwsh
+        run: |
+          Copy-Item "installer\target\release\moontranslator_installer.exe" "LunaTranslator-Installer.exe"
+
+      - name: Download Linux Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: LunaTranslator-Linux
+          path: linux-artifacts
+
+      - name: Download Flatpak Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: LunaTranslator-Flatpak
+          path: flatpak-artifacts
+
+      - name: Read Release Notes
+        shell: pwsh
+        run: |
+          "RELEASE_BODY<<EOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Get-Content -Path "RELEASE_NOTES.md" -Raw | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "EOF" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          name: ${{ github.event.inputs.release_title }}
+          body: ${{ env.RELEASE_BODY }}
+          files: |
+            LunaTranslator-App-${{ github.event.inputs.version }}-portable.zip
+            LunaTranslator-Installer.exe
+            linux-artifacts/*.AppImage
+            linux-artifacts/*.deb
+            linux-artifacts/*.rpm
+            flatpak-artifacts/*.flatpak
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify Discord
+        if: ${{ env.DISCORD_WEBHOOK_URL != '' }}
+        shell: pwsh
+        run: |
+          $version = "${{ github.event.inputs.version }}"
+          $title = "${{ github.event.inputs.release_title }}"
+          $releaseUrl = "https://github.com/${{ github.repository }}/releases/tag/$version"
+          $body = $env:RELEASE_BODY
+          if ($body.Length -gt 1900) { $body = $body.Substring(0, 1900) + "..." }
+
+          $payload = @{
+            embeds = @(
+              @{
+                title       = "$title ($version)"
+                url         = $releaseUrl
+                description = $body
+                color       = 3447003
+                timestamp   = (Get-Date -Format "o")
+                footer      = @{ text = "LunaTranslator Release" }
+              }
+            )
+          } | ConvertTo-Json -Depth 5
+
+          Invoke-RestMethod -Uri $env:DISCORD_WEBHOOK_URL -Method Post -ContentType "application/json" -Body $payload

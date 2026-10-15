@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="128"
+   height="128"
+   viewBox="0 0 128 128"
+   role="img"
+   aria-label="LunaTranslator bilingual crescent moon logo"
+   version="1.1"
+   id="svg11"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs7">
+    <linearGradient
+       id="tile"
+       x1="0"
+       y1="0"
+       x2="1"
+       y2="1">
+      <stop
+         stop-color="#262138"
+         id="stop1" />
+      <stop
+         offset="1"
+         stop-color="#15131F"
+         id="stop2" />
+    </linearGradient>
+    <linearGradient
+       id="luna"
+       x1="0.14"
+       y1="0.12"
+       x2="0.92"
+       y2="0.98">
+      <stop
+         stop-color="#BD9BFF"
+         id="stop3" />
+      <stop
+         offset=".48"
+         stop-color="#9569FA"
+         id="stop4" />
+      <stop
+         offset="1"
+         stop-color="#6750CF"
+         id="stop5" />
+    </linearGradient>
+    <linearGradient
+       id="card"
+       x1="0"
+       y1="0"
+       x2="1"
+       y2="1">
+      <stop
+         stop-color="#FFFFFF"
+         id="stop6" />
+      <stop
+         offset="1"
+         stop-color="#EEE9FF"
+         id="stop7" />
+    </linearGradient>
+  </defs>
+  <rect
+     x="3"
+     y="3"
+     width="122"
+     height="122"
+     rx="30"
+     fill="url(#tile)"
+     stroke="#4C4267"
+     stroke-width="1"
+     id="rect7" />
+  <!-- The lunar crescent is a pure vector shape. -->
+  <path
+     d="M103.68 72.23 A43 43 0 1 1 48.16 25.96 A37 37 0 0 0 103.68 72.23 Z"
+     fill="url(#luna)"
+     id="path7" />
+  <!-- A speech balloon holds two language glyphs as a single compact mark. -->
+  <path
+     d="M64 49h33c9 0 15 6 15 15v19c0 9-6 15-15 15h-3l-9 10-1-10H64c-9 0-15-6-15-15V64c0-9 6-15 15-15Z"
+     fill="url(#card)"
+     id="path8" />
+  <path
+     d="M64 49h33c9 0 15 6 15 15v19c0 9-6 15-15 15h-3l-9 10-1-10H64c-9 0-15-6-15-15V64c0-9 6-15 15-15Z"
+     fill="none"
+     stroke="#DACFFF"
+     stroke-width="1"
+     id="path9" />
+  <path
+     d="m 58.068359,83 h 5.345703 l 1.244141,-3.923828 h 7.232422 L 73.09375,83 h 5.496094 L 71.548828,62.628906 h -6.480469 z m 7.820313,-7.765625 0.36914,-1.189453 c 0.710938,-2.269531 1.367188,-4.498047 2.064454,-7 0.683593,2.501953 1.339843,4.730469 2.009765,7 l 0.369141,1.189453 z"
+     id="text9"
+     style="font-weight:800;font-size:28px;font-family:'Inter Display', Inter, Arial, sans-serif;letter-spacing:-1;fill:#392b66"
+     aria-label="A" />
+  <path
+     d="M82 63v21"
+     stroke="#D4C8EC"
+     stroke-width="1.5"
+     stroke-linecap="round"
+     id="path10" />
+  <path
+     d="m 94.652,64.238 c 0.483,0.903 0.966,2.1 1.197,2.961 h -8.925 v 2.457 h 3.318 c 1.134,2.961 2.604,5.502 4.494,7.602 -2.184,1.701 -4.914,2.898 -8.211,3.717 0.504,0.588 1.26,1.764 1.533,2.373 3.381,-0.987 6.216,-2.394 8.547,-4.284 2.226,1.869 4.935,3.255 8.253,4.137 0.378,-0.693 1.134,-1.785 1.701,-2.352 -3.171,-0.714 -5.817,-1.974 -8.001,-3.633 1.869,-2.037 3.297,-4.536 4.368,-7.56 h 3.234 v -2.457 h -9.156 l 1.785,-0.567 C 98.537,65.771 97.907,64.427 97.34,63.44 Z m 1.995,11.256 C 95.03,73.835 93.77,71.861 92.846,69.656 h 7.266 c -0.861,2.31 -1.995,4.242 -3.465,5.838 z"
+     id="text10"
+     style="font-weight:700;font-size:21px;font-family:'Noto Sans CJK SC', 'Noto Sans SC', sans-serif;fill:#553ac0"
+     aria-label="文" />
+  <!-- Two small sparkles keep the celestial association, without looking noisy. -->
+  <path
+     d="M104 29l1.7 4.3 4.3 1.7-4.3 1.7-1.7 4.3-1.7-4.3-4.3-1.7 4.3-1.7Z"
+     fill="#B89CFF"
+     id="path11" />
+  <circle
+     cx="113"
+     cy="26"
+     r="1.6"
+     fill="#D4C0FF"
+     id="circle11" />
+</svg>

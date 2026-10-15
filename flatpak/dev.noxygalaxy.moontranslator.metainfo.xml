@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>dev.noxygalaxy.moontranslator</id>
+  <name>LunaTranslator</name>
+  <summary>Minimalist Translation App</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <description>
+    <p>A beautiful, minimalist, and smart desktop translator based on MoonTranslator by Noxy Galaxy and maintained by SornSyun.</p>
+  </description>
+  <launchable type="desktop-id">dev.noxygalaxy.moontranslator.desktop</launchable>
+  <developer>
+    <name>SornSyun</name>
+  </developer>
+  <url type="homepage">https://github.com/ifeohsun/Translator</url>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.3.0" date="2026-10-15">
+      <description>
+        <p>Improved selection capture reliability and popup responsiveness.</p>
+      </description>
+    </release>
+    <release version="0.1.5" date="2026-08-04">
+      <description>
+        <p>Initial Flatpak packaging.</p>
+      </description>
+    </release>
+  </releases>
+</component>

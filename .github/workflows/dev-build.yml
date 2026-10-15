@@ -1,0 +1,210 @@
+name: Dev Build
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: Build Tauri App
+        run: pnpm tauri build
+
+      - name: Package Portable App
+        shell: pwsh
+        run: |
+          mkdir LunaTranslator_Portable
+          Copy-Item "src-tauri\target\release\moon*.exe" "LunaTranslator_Portable\"
+          Copy-Item "src-tauri\icons\icon.ico" "LunaTranslator_Portable\"
+          Compress-Archive -Path "LunaTranslator_Portable\*" -DestinationPath "LunaTranslator-dev.${{ github.run_number }}.zip"
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LunaTranslator-Windows-Dev-${{ github.run_number }}
+          path: LunaTranslator-dev.${{ github.run_number }}.zip
+          retention-days: 30
+
+  build-linux:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libx11-dev \
+            libxrandr-dev \
+            libwayland-dev \
+            rpm
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: Build Tauri App
+        run: pnpm tauri build --bundles deb rpm appimage
+
+      - name: Stage Linux Artifacts
+        run: |
+          mkdir -p linux-artifacts
+          cd src-tauri/target/release/bundle/appimage
+          APPIMAGE_FILE=$(ls *.AppImage 2>/dev/null | head -n 1)
+          if [ -n "$APPIMAGE_FILE" ]; then
+            mv "$APPIMAGE_FILE" "$GITHUB_WORKSPACE/linux-artifacts/LunaTranslator-dev.${{ github.run_number }}.AppImage"
+            chmod +x "$GITHUB_WORKSPACE/linux-artifacts/LunaTranslator-dev.${{ github.run_number }}.AppImage"
+            echo "AppImage staged successfully"
+          else
+            echo "Error: No AppImage file found"
+            exit 1
+          fi
+          cd "$GITHUB_WORKSPACE/src-tauri/target/release/bundle/deb"
+          DEB_FILE=$(ls *.deb 2>/dev/null | head -n 1)
+          if [ -n "$DEB_FILE" ]; then
+            mv "$DEB_FILE" "$GITHUB_WORKSPACE/linux-artifacts/LunaTranslator-dev.${{ github.run_number }}.deb"
+            echo "Debian package staged successfully"
+          else
+            echo "Error: No deb file found"
+            exit 1
+          fi
+          cd "$GITHUB_WORKSPACE/src-tauri/target/release/bundle/rpm"
+          RPM_FILE=$(ls *.rpm 2>/dev/null | head -n 1)
+          if [ -n "$RPM_FILE" ]; then
+            mv "$RPM_FILE" "$GITHUB_WORKSPACE/linux-artifacts/LunaTranslator-dev.${{ github.run_number }}.rpm"
+            echo "RPM package staged successfully"
+          else
+            echo "Error: No rpm file found"
+            exit 1
+          fi
+
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LunaTranslator-Linux-Dev-${{ github.run_number }}
+          path: linux-artifacts
+          retention-days: 30
+
+  build-flatpak:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install flatpak tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder ccache
+
+      - name: Cache Flatpak build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/share/flatpak
+            ~/.cache/flatpak-builder
+            ~/.cache/ccache
+          key: flatpak-${{ runner.os }}-48-${{ hashFiles('dev.noxygalaxy.moontranslator.yml', 'flatpak/**') }}
+          restore-keys: |
+            flatpak-${{ runner.os }}-48-
+
+      - name: Add flathub remote
+        run: flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+      - name: Install runtime and SDK
+        run: |
+          flatpak install --user --noninteractive flathub \
+            org.gnome.Platform//48 \
+            org.gnome.Sdk//48
+
+      - name: Build Flatpak
+        run: |
+          flatpak-builder --user --ccache --install-deps-from=flathub --force-clean \
+            --repo=flatpak-repo \
+            build-flatpak \
+            dev.noxygalaxy.moontranslator.yml
+
+      - name: Diagnose Flatpak finish failure
+        if: failure()
+        run: |
+          set +e
+          OUT=$(flatpak-builder --user --finish-only --repo=flatpak-repo \
+            build-flatpak \
+            dev.noxygalaxy.moontranslator.yml 2>&1 | tail -n 80)
+          RC=$?
+          echo "finish rc=$RC"
+          MSG=$(echo "$OUT" | sed ':a;N;$!ba;s/\n/%0A/g')
+          echo "::error::flatpak-builder finish: $MSG"
+
+      - name: Bundle Flatpak
+        run: |
+          flatpak build-bundle \
+            --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo \
+            flatpak-repo \
+            LunaTranslator-App-dev.${{ github.run_number }}.flatpak \
+            dev.noxygalaxy.moontranslator
+
+      - name: Upload Flatpak Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LunaTranslator-Flatpak-Dev-${{ github.run_number }}
+          path: LunaTranslator-App-dev.${{ github.run_number }}.flatpak
+          retention-days: 30

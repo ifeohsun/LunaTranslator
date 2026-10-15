@@ -1,0 +1,99 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "LunaTranslator",
+  "version": "0.3.0",
+  "identifier": "dev.noxygalaxy.moontranslator",
+  "build": {
+    "frontendDist": "../out",
+    "devUrl": "http://localhost:3000",
+    "beforeDevCommand": "pnpm dev",
+    "beforeBuildCommand": "pnpm build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "LunaTranslator",
+        "width": 960,
+        "height": 640,
+        "minWidth": 720,
+        "minHeight": 520,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "center": true,
+        "visible": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' https://api.deepl.com/ https://api-free.deepl.com/ https://translate.googleapis.com/ https://edge.microsoft.com/ https://api-edge.cognitive.microsofttranslator.com/ https://api.laratranslate.com/; img-src 'self' data: asset:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; base-uri 'self'; form-action 'self'; object-src 'none'",
+      "devCsp": "default-src 'self'; connect-src 'self' ws://localhost:* http://localhost:* https://api.deepl.com/ https://api-free.deepl.com/ https://translate.googleapis.com/ https://edge.microsoft.com/ https://api-edge.cognitive.microsofttranslator.com/ https://api.laratranslate.com/; img-src 'self' data: asset:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; base-uri 'self'; form-action 'self'; object-src 'none'",
+      "capabilities": [
+        {
+          "identifier": "main-capability",
+          "windows": ["main", "popup"],
+          "permissions": [
+            "core:default",
+            "core:window:allow-start-dragging",
+            "core:window:allow-set-size",
+            "core:window:allow-set-position",
+            "store:default",
+            "store:allow-load",
+            "store:allow-save",
+            "store:allow-set",
+            "store:allow-get",
+            "autostart:default",
+            "clipboard-manager:default",
+            "clipboard-manager:allow-read-text",
+            "clipboard-manager:allow-write-text",
+            "clipboard-manager:allow-clear",
+            "shell:allow-open"
+          ]
+        },
+        {
+          "identifier": "shell-urls",
+          "windows": ["main", "popup"],
+          "permissions": [
+            {
+              "identifier": "shell:allow-open",
+              "allow": [{ "url": "https://**" }, { "url": "http://**" }]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "bundle": {
+    "active": true,
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/icon.ico",
+      "icons/icon.icns",
+      "icons/icon.png"
+    ],
+    "linux": {
+      "appimage": {
+        "bundleMediaFramework": false
+      },
+      "deb": {
+        "depends": []
+      }
+    },
+    "windows": {
+      "nsis": {
+        "displayLanguageSelector": false,
+        "installerIcon": "icons/icon.ico",
+        "headerImage": null,
+        "sidebarImage": null,
+        "installMode": "both",
+        "languages": [
+          "English"
+        ],
+        "startMenuFolder": "LunaTranslator"
+      }
+    }
+  }
+}
