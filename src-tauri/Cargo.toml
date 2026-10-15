@@ -1,6 +1,6 @@
 [package]
 name = "moon-translator"
-version = "0.3.1"
+version = "0.3.2"
 description = "LunaTranslator - Minimalist Translation App based on MoonTranslator"
 authors = ["SornSyun"]
 license = "GPL-3.0-only"

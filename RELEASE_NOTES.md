@@ -1,6 +1,5 @@
-# LunaTranslator v0.3.1
+# LunaTranslator v0.3.2
 
-- Updated the application logo and platform icons.
-- Bundled the Outfit font locally so builds no longer require access to Google Fonts.
+- Prevented multiple application instances on Windows; launching again focuses the existing main window.
 
 Based on MoonTranslator by Noxy Galaxy; maintained by SornSyun.
