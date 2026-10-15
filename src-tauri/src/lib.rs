@@ -247,7 +247,14 @@ fn read_selection(app: AppHandle) -> Result<SelectionSnapshot, String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let builder = tauri::Builder::default();
+    #[cfg(target_os = "windows")]
+    let builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+        show_and_focus_window(app, "main");
+        focus_main_input(app);
+    }));
+
+    builder
         .plugin(
             tauri_plugin_log::Builder::default()
                 .level(log::LevelFilter::Info)
