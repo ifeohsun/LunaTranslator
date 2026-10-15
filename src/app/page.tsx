@@ -32,7 +32,7 @@ export default function Home() {
     swapLanguages,
   } = useTranslatorStore();
 
-  const { setSettingsOpen, apiKeys, loadFromStore, activeApi: settingsActiveApi, uiScale, uiOpacity, darkMode } =
+  const { setSettingsOpen, apiKeys, loadFromStore, activeApi: settingsActiveApi, uiScale, uiOpacity } =
     useSettingsStore();
   const { t, locale } = useI18n();
 
@@ -288,7 +288,7 @@ export default function Home() {
           <Image
             width={30}
             height={30}
-            src={darkMode ? "/logo_dark.svg" : "/LunaTranslator_Light_Horizontal.svg"}
+            src="/logo.svg"
             alt=""
             className="w-7.5 h-7.5 shrink-0 object-contain"
           />

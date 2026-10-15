@@ -1,7 +1,7 @@
 > **⚠️ Antivirus notice:** This app uses a global keyboard shortcut and may be flagged by some antivirus software - it's a false positive.
 
 <div align="center">
-   <img src="public/LunaTranslator_Light_Horizontal.svg" alt="LunaTranslator Logo" width="80" height="80" />
+   <img src="public/logo.svg" alt="LunaTranslator Logo" width="80" height="80" />
    <h1>LunaTranslator</h1>
    <p><strong>A beautiful, minimalist, and smart desktop translator that actually gets out of your way.</strong></p>
 

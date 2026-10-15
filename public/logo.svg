@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- 新月主渐变（星光紫到电光蓝） -->
+    <linearGradient id="moonGrad" x1="15%" y1="10%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#D8B4FE" />
+      <stop offset="40%" stop-color="#9333EA" />
+      <stop offset="100%" stop-color="#4F46E5" />
+    </linearGradient>
+
+    <!-- 翻译气泡/卡片高光渐变 -->
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A78BFA" stop-opacity="0.32" />
+      <stop offset="100%" stop-color="#4F46E5" stop-opacity="0.14" />
+    </linearGradient>
+
+    <!-- 字母与字符渐变 -->
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#E9D5FF" />
+    </linearGradient>
+
+    <!-- 柔和阴影 -->
+    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#07050C" flood-opacity="0.65" />
+    </filter>
+
+    <!-- 星光光晕径向渐变 -->
+    <radialGradient id="starGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F3E8FF" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#A855F7" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- 背景环境光晕 -->
+    <radialGradient id="ambientGlow" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#7C3AED" stop-opacity="0.28" />
+      <stop offset="65%" stop-color="#4F46E5" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- 2. 内部环境星云背光 -->
+  <circle cx="256" cy="240" r="210" fill="url(#ambientGlow)" />
+
+  <!-- 3. 背景星轨装饰环 -->
+  <ellipse cx="256" cy="256" rx="178" ry="74" transform="rotate(-32 256 256)"
+           fill="none" stroke="#A78BFA" stroke-width="2" stroke-opacity="0.22" stroke-dasharray="8 10" />
+
+  <!-- 4. 主体：Luna 新月 -->
+  <path d="M 305 86
+           A 170 170 0 1 0 414 336
+           A 143 143 0 1 1 305 86 Z"
+        fill="url(#moonGrad)"
+        filter="url(#softShadow)" />
+
+  <!-- 新月内侧高光描边 -->
+  <path d="M 305 86
+           A 170 170 0 1 0 414 336
+           A 143 143 0 1 1 305 86 Z"
+        fill="none"
+        stroke="#F3E8FF"
+        stroke-width="1.5"
+        stroke-opacity="0.5" />
+
+  <!-- 5. 玻璃拟态翻译双卡片 -->
+  <!-- 右下卡片：目标语言 "A" -->
+  <g filter="url(#softShadow)">
+    <rect x="248" y="232" width="138" height="138" rx="34"
+          fill="url(#cardGrad)"
+          stroke="#C4B5FD" stroke-width="2" stroke-opacity="0.4" />
+    <path d="M 317 265 L 289 339 M 317 265 L 345 339 M 297 318 L 337 318"
+          fill="none" stroke="url(#textGrad)" stroke-width="11.5" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <!-- 左上卡片：源语言 "文" -->
+  <g filter="url(#softShadow)">
+    <rect x="146" y="134" width="144" height="144" rx="36"
+          fill="#252038" fill-opacity="0.9"
+          stroke="#C084FC" stroke-width="2.5" stroke-opacity="0.65" />
+    <path d="M 215 158 L 221 173
+             M 173 185 L 263 185
+             M 240 185 C 234 218, 212 240, 175 253
+             M 192 197 C 206 222, 228 240, 261 253"
+          fill="none" stroke="url(#textGrad)" stroke-width="11.5" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <!-- 6. 双向转换流光箭头 -->
+  <g stroke="#E9D5FF" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.92">
+    <path d="M 308 172 A 48 48 0 0 1 350 214" />
+    <polyline points="339 206 350 216 358 204" />
+    <path d="M 228 344 A 48 48 0 0 1 186 302" />
+    <polyline points="197 310 186 300 178 312" />
+  </g>
+
+  <!-- 7. 四角星光点缀 -->
+  <circle cx="382" cy="132" r="36" fill="url(#starGlow)" />
+  <path d="M 382 106 Q 382 132 408 132 Q 382 132 382 158 Q 382 132 356 132 Q 382 132 382 106 Z"
+        fill="#FAF5FF" />
+  <circle cx="418" cy="172" r="4.5" fill="#D8B4FE" opacity="0.85" />
+  <circle cx="122" cy="295" r="3.5" fill="#C4B5FD" opacity="0.65" />
+  <circle cx="288" cy="118" r="3.5" fill="#F3E8FF" opacity="0.75" />
+</svg>

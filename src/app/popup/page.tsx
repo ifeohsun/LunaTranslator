@@ -154,7 +154,6 @@ export default function PopupPage() {
     setActiveApi,
     loadFromStore,
     uiOpacity,
-    darkMode,
     setApiKey,
     saveToStore,
   } = useSettingsStore();
@@ -551,7 +550,7 @@ export default function PopupPage() {
         <div className="flex items-center gap-2" data-tauri-drag-region>
           <GripHorizontal size={14} className="text-secondary" />
           <Image
-            src={darkMode ? "/logo_dark.svg" : "/LunaTranslator_Light_Horizontal.svg"}
+            src="/logo.svg"
             width={20}
             height={20}
             alt=""
